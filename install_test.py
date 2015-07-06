@@ -46,7 +46,7 @@ class InstallTest(object):
 			print("Test Result: FAIL")
 			sys.exit()
 		self.startingBootCount = boot_count
-		print("New boot count: " + str(self.startingBootCount)
+		print("New boot count: " + str(self.startingBootCount))
 	
 	#Execute test.
 	def execute(self):
