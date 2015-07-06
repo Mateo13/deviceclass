@@ -19,7 +19,7 @@ class Device(object):
 		self.type = type
 		
 		self.tn = Telnet(address, port, 20)
-		print(self.tn.read_until(b'Username:', 20))
+		self.tn.read_until(b'Username:', 20)
 		print("Connected to %s" % address)
 	
 	#Reset the device.
@@ -36,11 +36,12 @@ class Device(object):
 		time.sleep(1)
 		self.write(self.password + '\n')
 		time.sleep(1)
-		print(self.tn.read_very_eager())
+		#print(self.tn.read_very_eager())
 		if self.type == 'EXOS':
-			d.write('disable clipaging')
+			self.write('disable clipaging\n')
 		if self.type == 'EOS':
-			d.write('set cli completion disable')
+			self.write('set cli completion disable\n')
+		self.tn.read_very_eager()
 			
 	#Write command(s) to the device.
 	def write(self, commands):
@@ -59,22 +60,32 @@ class Device(object):
 		time.sleep(1)
 		return self.tn.read_very_eager()
 
+	#Read until given string.
+	def read_until(self, str):
+		time.sleep(1)
+		return self.tn.read_until(str.encode('ascii'), 30)
+	
+	#Read until OS prompt.
+	def read_until_prompt(self):
+		time.sleep(1)
+		if self.type == 'EXOS':
+			return self.tn.read_until('#'.encode('ascii'), 500)
+		if self.type == 'EOS':
+			return self.tn.read_until('->'.encode('ascii'), 500)
+	
+	#Clear running configuration on device.
+	def clearConfig(self):
+		if self.type == 'EOS':
+			self.tn.write(['clear config all', 'y'])
+		if self.type == 'EXOS':
+			self.tn.write(['unconfig swi all', 'y'])
+			
 #Some object testing.
 if __name__ == '__main__':
-	'''d = device('10.52.2.222', 10027)
-	d.login()
-	d.write('sh port stat -i')
-	print(d.read())
-	d.reset()
-	time.sleep(60)
-	d.login()
-	print(d.read())
-	d.closeconnection()
-	#print(d.read())'''
 	d = Device('EXOS', '10.52.2.33', 2009)
 	d.login()
 	d.write('sh port no')
-	print(d.read())
-	d.reset()
-	time.sleep(60)
+	print(d.read().decode("utf-8"))
+	#d.reset()
+	#time.sleep(60)
 	
