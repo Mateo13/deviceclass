@@ -32,6 +32,7 @@ class Device(object):
 		
 	#Login to the device
 	def login(self):
+		self.write('\n')
 		self.write(self.username + '\n')
 		time.sleep(1)
 		self.write(self.password + '\n')
@@ -63,15 +64,15 @@ class Device(object):
 	#Read until given string.
 	def read_until(self, str):
 		time.sleep(1)
-		return self.tn.read_until(str.encode('ascii'), 30)
+		return self.tn.read_until(str.encode('ascii'), 300)
 	
 	#Read until OS prompt.
 	def read_until_prompt(self):
 		time.sleep(1)
 		if self.type == 'EXOS':
-			return self.tn.read_until('#'.encode('ascii'), 500)
+			return self.tn.read_until('#'.encode('ascii'), 300)
 		if self.type == 'EOS':
-			return self.tn.read_until('->'.encode('ascii'), 500)
+			return self.tn.read_until('->'.encode('ascii'), 300)
 	
 	#Clear running configuration on device.
 	def clearConfig(self):
