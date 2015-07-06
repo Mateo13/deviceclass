@@ -1,13 +1,15 @@
 #This test will run 100 installs and verify that each one is successful.
 
 #Imports.
+from test import Test
 from device import Device
 import sys
 
 #Define test class.
-class InstallTest(object):
+class InstallTest(Test):
 	#Initialize class.
-	def __init__(self, telnet_device, tftp_server_ip, test_image_directory):
+	def __init__(self, name, telnet_device, tftp_server_ip, test_image_directory):
+		super().__init__(name)
 		self.tn = telnet_device
 		self.tftp_ip = tftp_server_ip
 		self.image = test_image_directory
@@ -22,6 +24,7 @@ class InstallTest(object):
 	#Get current partition (primary/secondary) being used on the DUT.
 	def getCurPartition(self):
 		self.tn.read()
+		self.tn.write('\n')
 		self.tn.write('show switch')
 		output = self.tn.read_until('Image Booted:')
 		output = self.tn.read_until('\n').strip()
@@ -30,13 +33,14 @@ class InstallTest(object):
 	#Get current boot count.
 	def getBootCount(self):
 		self.tn.read()
+		self.tn.write('\n')
 		self.tn.write('show switch')
 		output = self.tn.read_until('Boot Count:')
 		output = self.tn.read_until('\n').strip()
 		return int(output.decode('utf-8'))
 		
 	#Check if image was installed successfully.
-	def check(self):
+	def checkResult(self):
 		boot_count = self.getBootCount()
 		if (self.startingBootCount + 1) == boot_count and self.testFailed == False:
 			self.testResult = 'PASS'
@@ -50,6 +54,7 @@ class InstallTest(object):
 	
 	#Execute test.
 	def execute(self):
+		print(self)
 		self.tn.login()
 		print("Configuring network access...")
 		self.configNetwork('192.168.1.9/24', '192.168.1.1')
@@ -83,11 +88,13 @@ class InstallTest(object):
 			self.tn.reset()
 			self.tn.read_until('Authentication Service (AAA) on the master node is now available for login.')
 			print("Reboot complete.")
+			self.tn.read()
 			self.tn.login()
-			self.check()
-			
-			
+			self.checkResult()
+		print("Test Result: PASS")
+
+#Some class testing.
 if __name__ == '__main__':
 	tel = Device('EXOS', '10.52.2.33', 2009)
-	test = InstallTest(tel, '10.52.4.40', 'firmware/images/summitX-16.1.1.4.xos')
+	test = InstallTest("InstallTest", tel, '10.52.4.40', 'firmware/images/summitX-16.1.1.4.xos')
 	test.execute()
