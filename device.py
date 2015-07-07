@@ -42,7 +42,7 @@ class Device(object):
 			self.write('disable clipaging\n')
 		if self.type == 'EOS':
 			self.write('set cli completion disable\n')
-		self.tn.read_very_eager()
+		return self.read()
 			
 	#Write command(s) to the device.
 	def write(self, commands):

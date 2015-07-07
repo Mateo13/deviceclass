@@ -1,6 +1,6 @@
 
 from device import Device
-
+import time
 
 
 
@@ -9,12 +9,13 @@ if __name__ == '__main__':
 	f = open('log.txt', 'w')
 	DUT = Device('EOS', '10.52.2.222', 10022)
 	DUT.write('\n')
+	time.sleep(10)
 	DUT.login()
 	f.write(DUT.read_until_prompt())
 	
 	for x in range(500):
 		print('*** Starting iteration %d ***' % x)
-		f.write('*** Starting iteration %d ***\n\n' % x)
+		f.write('\n\n*** Starting iteration %d ***\n\n' % x)
 		DUT.clearConfig()
 		# It takes about 3 minutes to come back online.
 		time.sleep(3*60)
