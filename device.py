@@ -90,9 +90,9 @@ class Device(object):
 	#Clear running configuration on device.
 	def clearConfig(self):
 		if self.type == 'EOS':
-			self.tn.write(['clear config all', 'y'])
+			self.write(['clear config all', 'y'])
 		if self.type == 'EXOS':
-			self.tn.write(['unconfig swi all', 'y'])
+			self.write(['unconfig swi all', 'y'])
 			
 #Some object testing.
 if __name__ == '__main__':
