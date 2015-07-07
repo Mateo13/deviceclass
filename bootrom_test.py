@@ -13,34 +13,37 @@ class BootROMTest(Test):
 		
 	#Check if test passed.
 	def checkResult(self):
-		print("////////////////////////////////////////////////////////////")
-		print("mtest execution completed")
+		self.logOutput("////////////////////////////////////////////////////////////")
+		self.logOutput("mtest execution completed")
 		if b'0 errors' in self.res:
-			print("Test Result: PASS")
+			self.logOutput("Test Result: PASS")
 		else: 
-			print("Test Result: FAIL")
-		print("////////////////////////////////////////////////////////////")
+			self.logOutput("Test Result: FAIL")
+		self.logOutput("////////////////////////////////////////////////////////////")
 
 	#Execute test.
 	def execute(self):
 		self.tn.login()
-		print("===============================================================================")
-		print("Beginning " + self.name)
-		print("===============================================================================")
-		print("Reseting device for BootROM testing...")
+		self.logOutput("===============================================================================")
+		self.logOutput("Beginning " + self.name)
+		self.logOutput("===============================================================================")
+		self.logOutput("Reseting device for BootROM testing...")
 		self.tn.reset()
 		self.tn.read_until('enter the bootrom:')
-		print("Executing mtest from BootROM...")
+		self.logOutput("Executing mtest from BootROM...")
 		self.tn.write('     ')
 		self.tn.read_until('BootRom >')
 		self.tn.write('mtest\n')
 		self.res = self.tn.read()
 		self.res = self.tn.read_until('BootRom >')
-		print(self.res)
+		self.logOutput(self.res)
 		self.tn.write('boot\n')		
 	
 if __name__ == '__main__':
 	tel = Device('EXOS', '10.52.2.33', 2009)
 	test = BootROMTest('BootROM Test', tel)
+	f = open('bootrom_testLog.txt','ab')
+	test.setLog(f)
 	test.execute()
 	test.checkResult()
+	f.close()

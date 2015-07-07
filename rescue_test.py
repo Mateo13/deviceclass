@@ -22,27 +22,27 @@ class RescueTest(Test):
 
 	#Check test result.
 	def checkResult(self):
-		print("////////////////////////////////////////////////////////////")
-		print("Rescue testing complete.")
-		print("Total iterations: " + numIter)
-		print("Test Result: " + self.testResult)
-		print("////////////////////////////////////////////////////////////")
+		self.logOutput("////////////////////////////////////////////////////////////")
+		self.logOutput("Rescue testing complete.")
+		self.logOutput("Total iterations: " + numIter)
+		self.logOutput("Test Result: " + self.testResult)
+		self.logOutput("////////////////////////////////////////////////////////////")
 
 
 	#Execute test
 	def execute(self):
-		print("===============================================================================")
-		print("Beginning " + self.name)
-		print("===============================================================================")
+		self.logOutput("===============================================================================")
+		self.logOutput("Beginning " + self.name)
+		self.logOutput("===============================================================================")
 		for i in range(1,(numIter + 1)):
-			print("============================================================")
-			print("Beginning iteration " + str(i))
-			print("============================================================")
+			self.logOutput("============================================================")
+			self.logOutput("Beginning iteration " + str(i))
+			self.logOutput("============================================================")
 			self.tn.login()
-			print("Resetting device for rescue image testing...")
+			self.logOutput("Resetting device for rescue image testing...")
 			self.tn.reset()
 			self.tn.read_until('enter the bootrom:')
-			print("Executing rescue image test...")
+			self.logOutput("Executing rescue image test...")
 			self.tn.write('     ')
 			self.tn.read_until('BootRom >')
 			self.tn.write('enable')

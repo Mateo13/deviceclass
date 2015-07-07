@@ -7,6 +7,15 @@ class Test(object):
 	def __init__(self, name):
 		self.name = name
 	
+	#Set log to log into to.
+	def setLog(self, file):
+		self.log = file
+
+	#Log output.
+	def logOutput(self, output):
+		print(output)
+		self.log.write(output.encode('ascii') + '\n')
+
 	#Check the result of the test after execution
 	def checkResult(self):
 		return

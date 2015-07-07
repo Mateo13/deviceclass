@@ -18,8 +18,6 @@ tests.append(t)
 
 #Add VLAN test to list of tests to execute and update num_ports.
 t = create_delete_VLANS.VLANTest('VLAN Test', dut)
-t.num_ports = 48
-t.numIter = 2
 tests.append(t)
 
 #Add BootROM test to list of tests to execute.
@@ -30,6 +28,10 @@ tests.append(t)
 t = rescue_test.RescueTest('Rescue Image Test', dut, '10.52.4.40', 'firmware/images/summitX-16.1.1.4.xos')
 tests.append(t)
 
+#Create test log.
+f = open('testLog.txt', 'ab')
+
 for i in tests:
+	i.setLog(f)
 	i.execute()
 	i.checkResult()

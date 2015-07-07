@@ -6,7 +6,7 @@ from device import Device
 import random
 
 #Global Vars
-num_ports = 24
+num_ports = 48
 numIter = 20
 numVLANS = 1000
 
@@ -28,20 +28,20 @@ class VLANTest(Test):
 		for i in range(1,(numVLANS + 1)):
 			rndNum = self.rnd.choice(vlanList)
 			vlanList.remove(rndNum)
-			print("Creating VLAN " + str(rndNum) + "...")
+			self.logOutput("Creating VLAN " + str(rndNum) + "...")
 			self.tn.write('create vlan ' + str(rndNum) + '\n')
 			self.tn.read_until('#')
 			self.tn.write('conf vlan ' + str(rndNum) + ' add port 1-' + str(num_ports) + ' tag\n')
 			self.tn.read_until('#')
-			print("VLAN " + str(rndNum) + " created.")
+			self.logOutput("VLAN " + str(rndNum) + " created.")
 	
 	#Delete all VLANs.
 	def deleteVLANs(self):
 		self.tn.read()
-		print("Deleting all non-default VLANs...")
+		self.logOutput("Deleting all non-default VLANs...")
 		self.tn.write('delete VLAN 2-4094\n')
 		self.tn.read_until('#')
-		print("VLANs deleted.")
+		self.logOutput("VLANs deleted.")
 	
 	#Check if test passed.
 	def checkCreate(self):
@@ -72,25 +72,25 @@ class VLANTest(Test):
 		for i in self.iterResults:
 			if i:
 				numPassed += 1
-		print("////////////////////////////////////////////////////////////")
-		print("VLAN testing completed.")
-		print("Number of passing runs: " + str(numPassed))
+		self.logOutput("////////////////////////////////////////////////////////////")
+		self.logOutput("VLAN testing completed.")
+		self.logOutput("Number of passing runs: " + str(numPassed))
 		if numPassed == numIter:
-			print("Test Result: PASS")
+			self.logOutput("Test Result: PASS")
 		else:
-			print("Test Result: FAIL")
-		print("////////////////////////////////////////////////////////////")
+			self.logOutput("Test Result: FAIL")
+		self.logOutput("////////////////////////////////////////////////////////////")
 		
 	#Execute test.
 	def execute(self):
-		print("===============================================================================")
-		print("Beginning " + self.name)
-		print("===============================================================================")
+		self.logOutput("===============================================================================")
+		self.logOutput("Beginning " + self.name)
+		self.logOutput("===============================================================================")
 		self.tn.login()
 		for i in range(1,(numIter + 1)):
-			print("============================================================")
-			print("Beginning iteration " + str(i))
-			print("============================================================")
+			self.logOutput("============================================================")
+			self.logOutput("Beginning iteration " + str(i))
+			self.logOutput("============================================================")
 			self.createVLANs()
 			self.checkCreate()
 			self.deleteVLANs()
@@ -101,5 +101,8 @@ class VLANTest(Test):
 if __name__ == '__main__':
 	tel = Device('EXOS', '10.52.2.33', 2009)
 	test = VLANTest('Create/Delete VLANs Test', tel)
+	f = open('testLog.txt', 'ab')
+	test.setLog(f)
 	test.execute()
 	test.checkResult()
+	f.close()

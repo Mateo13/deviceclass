@@ -53,55 +53,55 @@ class InstallTest(Test):
 			self.testResult = 'FAIL'
 			self.testFailed = True
 		self.bootCount = boot_count
-		print("New boot count: " + str(self.bootCount))
+		self.logOutput("New boot count: " + str(self.bootCount))
 	
 	#Check test run results.
 	def checkResult(self):
-		print("////////////////////////////////////////////////////////////")
-		print("Image downloads/reboots completed.")
-		print("Total number of reboots: " + str(self.bootCount - self.startingBootCount))
-		print("Test Result: " + self.testResult)
-		print("////////////////////////////////////////////////////////////")
+		self.logOutput("////////////////////////////////////////////////////////////")
+		self.logOutput("Image downloads/reboots completed.")
+		self.logOutput("Total number of reboots: " + str(self.bootCount - self.startingBootCount))
+		self.logOutput("Test Result: " + self.testResult)
+		self.logOutput("////////////////////////////////////////////////////////////")
 
 	#Execute test.
 	def execute(self):
-		print("===============================================================================")
-		print("Beginning " + self.name)
-		print("===============================================================================")
+		self.logOutput("===============================================================================")
+		self.logOutput("Beginning " + self.name)
+		self.logOutput("===============================================================================")
 		self.tn.login()
-		print("Configuring network access...")
+		self.logOutput("Configuring network access...")
 		self.configNetwork(dut_ip, dut_gw)
-		print("Network access configured.")
-		print("Getting current partition...")
+		self.logOutput("Network access configured.")
+		self.logOutput("Getting current partition...")
 		self.getCurPartition()
-		print("Starting partition is: " + self.partition)
+		self.logOutput("Starting partition is: " + self.partition)
 		self.startingBootCount = self.getBootCount()
 		self.bootCount = self.startingBootCount
-		print("Starting boot count is: " + str(self.startingBootCount))
+		self.logOutput("Starting boot count is: " + str(self.startingBootCount))
 		for i in range(1,(numIter + 1)):
-			print("============================================================")
-			print("Beginning iteration " + str(i))
-			print("============================================================")
-			print("Downloading image...")
+			self.logOutput("============================================================")
+			self.logOutput("Beginning iteration " + str(i))
+			self.logOutput("============================================================")
+			self.logOutput("Downloading image...")
 			self.tn.read()
 			self.tn.write('download image ' + self.tftp_ip + ' ' + self.image + ' vr VR-Mgmt')
 			self.tn.write(['y', 'y'])
 			self.tn.read_until_prompt()
-			print("Image downloaded.")
+			self.logOutput("Image downloaded.")
 			if self.partition == 'primary':
 				self.partition = 'secondary'
 			elif self.partition == 'secondary':
 				self.partition = 'primary'
 			else:
-				print('ERROR: Invalid partition!  Exiting...')
-				print('Test Result: FAIL')
+				self.logOutput('ERROR: Invalid partition!  Exiting...')
+				self.logOutput('Test Result: FAIL')
 				return
-			print("Setting boot partition to " + self.partition + "...")
+			self.logOutput("Setting boot partition to " + self.partition + "...")
 			self.tn.write('use image ' + self.partition)
-			print("Rebooting...")
+			self.logOutput("Rebooting...")
 			self.tn.reset()
 			self.tn.read_until('Authentication Service (AAA) on the master node is now available for login.')
-			print("Reboot complete.")
+			self.logOutput("Reboot complete.")
 			self.tn.read()
 			self.tn.login()
 			self.checkStatus()
@@ -110,5 +110,8 @@ class InstallTest(Test):
 if __name__ == '__main__':
 	tel = Device('EXOS', '10.52.2.33', 2009)
 	test = InstallTest("InstallTest", tel, '10.52.4.40', 'firmware/images/summitX-16.1.1.4.xos')
+	f = open('testLog.txt', 'ab')
+	test.setLog(f)
 	test.execute()
 	test.checkResult()
+	f.close()
