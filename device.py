@@ -2,7 +2,8 @@
 import time
 import random
 from telnetlib import Telnet
-	
+import sys
+
 #Define an EOS/EXOS device to connect to.
 class Device(object):
 	#Create Device object and assign type (EOS/EXOS), IP, port, and username/password.
@@ -17,9 +18,12 @@ class Device(object):
 		else:
 			raise ValueError("Invalid device type!")
 		self.type = type
-		
 		self.tn = Telnet(address, port, 20)
-		self.tn.read_until(b'Username:', 20)
+		self.write('\n')
+		if type == 'EOS':
+			self.read_until('Username:', 10)
+		else:
+			self.read_until('login:', 10)
 		print("Connected to %s" % address)
 	
 	#Reset the device.
@@ -34,10 +38,11 @@ class Device(object):
 	def login(self):
 		self.write('\n')
 		self.write(self.username + '\n')
-		time.sleep(1)
 		self.write(self.password + '\n')
-		time.sleep(1)
-		#print(self.tn.read_very_eager())
+		temp = self.read_find('#', 4)
+		if temp == None:
+			print("Error logging into device: Incorrect username or bad password!\n")
+			sys.exit()
 		if self.type == 'EXOS':
 			self.write('disable clipaging\n')
 		if self.type == 'EOS':
@@ -62,17 +67,25 @@ class Device(object):
 		return self.tn.read_very_eager()
 
 	#Read until given string.
-	def read_until(self, str):
+	def read_until(self, s, timeout=300):
 		time.sleep(1)
-		return self.tn.read_until(str.encode('ascii'), 300)
+		return self.tn.read_until(s.encode('ascii'), timeout)
+	
+	#Same as read_until except returns null if timeout was reached (timeout was reached if the "read_until" string isn't in the return output).
+	def read_find(self, s, timeout=300):
+		temp = self.read_until(s, timeout)
+		if s in str(temp):
+			return temp
+		else:
+			return None
 	
 	#Read until OS prompt.
-	def read_until_prompt(self):
+	def read_until_prompt(self, timeout=300):
 		time.sleep(1)
 		if self.type == 'EXOS':
-			return self.tn.read_until('#'.encode('ascii'), 300)
+			return self.tn.read_until('#'.encode('ascii'), timeout)
 		if self.type == 'EOS':
-			return self.tn.read_until('->'.encode('ascii'), 300)
+			return self.tn.read_until('->'.encode('ascii'), timeout)
 	
 	#Clear running configuration on device.
 	def clearConfig(self):
