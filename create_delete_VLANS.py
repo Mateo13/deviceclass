@@ -4,6 +4,8 @@
 from device import Device
 import random
 
+#Global Vars
+num_ports = 24
 
 #Define the test.
 class VLANTest(object):
@@ -23,6 +25,8 @@ class VLANTest(object):
 			vlanList.remove(rndNum)
 			print("Creating VLAN " + str(rndNum) + "...")
 			self.tn.write('create vlan ' + str(rndNum) + '\n')
+			self.tn.read_until('#')
+			self.tn.write('conf vlan ' + str(rndNum) + ' add port 1-' + str(num_ports) + ' tag\n')
 			self.tn.read_until('#')
 			print("VLAN " + str(rndNum) + " created.")
 	
