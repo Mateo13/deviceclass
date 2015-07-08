@@ -20,19 +20,28 @@ if __name__ == '__main__':
 		print('*** Starting iteration %d with a %d second wait.***\n\n' % (x,sleeptime))
 		f.write('\n\n*** Starting iteration %d  with a %d second wait.***\n\n' % (x,sleeptime))
 		
+		print('Clearing config.')
 		DUT.clearConfig()
 		# It takes about 3 minutes to come back online.
 		output = DUT.read_until('Username:')
+		print('Logging into DUT')
 		output = output + DUT.login()
 		f.write(output)
 		time.sleep(sleeptime)
+		print('Appending the config.')
 		# append the backup config.
-		DUT.write(['config slot2/backup2.cfg append','y'])
+		output = DUT.write(['config slot2/backup2.cfg append','y'])
 		# This should wait for the append to finish.
-		output = DUT.read_until_prompt()
+		output = output + DUT.read_until_prompt()
 		f.write(output)
 		if 'MII' in output:
 			print('Found an issue')
+			break
+		elif 'DistServ' in output:
+			print('Possible watchdog error.  quitting.')
+			break
+		elif 'Boot ROM' in output:
+			print('DUT reset.  quitting.')
 			break
 		else:
 			print('No issue found')

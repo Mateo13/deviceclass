@@ -3,6 +3,7 @@ import time
 import random
 from telnetlib import Telnet
 import sys
+import re
 
 #Define an EOS/EXOS device to connect to.
 class Device(object):
@@ -24,7 +25,7 @@ class Device(object):
 			self.read_until('Username:', 10)
 		else:
 			self.read_until('login:', 10)
-		print("Connected to %s" % address)
+		print("Connected to %s:%d" % (address, port))
 	
 	#Reset the device.
 	def reset(self):
@@ -60,12 +61,13 @@ class Device(object):
 		if isinstance(commands, str):
 			#print('It is a string')
 			self.tn.write(commands.encode('ascii') + b'\n')
-			temp = self.read_until_prompt()
+			temp = self.read_until_prompt(1)
 		else:
 			#print('It is a list')
+			temp = ''
 			for command in commands:
 				self.tn.write(command.encode('ascii') + b'\n')
-				temp = self.read_until_prompt()
+				temp = temp + self.read_until_prompt(1)
 		return temp
 		
 	#Read output
@@ -87,11 +89,10 @@ class Device(object):
 	
 	#Read until OS prompt.
 	def read_until_prompt(self, timeout=300):
-		if self.type == 'EXOS':
-			return self.read_until('#', timeout)
-		if self.type == 'EOS':
-			return self.read_until('->', timeout)
-	
+		reYesNo = b'\([yY]/[nN](/q)*\)'
+		(index, match, output) = self.tn.expect([reYesNo, b' # ', b'->', b'Username:', b'login:', b'[pP]assword'], timeout)
+		#(index, match, output) = self.tn.expect([b' # ',b'->',reYesNo], timeout)
+		return output
 	#Clear running configuration on device.
 	def clearConfig(self):
 		if self.type == 'EOS':
