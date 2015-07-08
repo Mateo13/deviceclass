@@ -37,12 +37,11 @@ if __name__ == '__main__':
 		if 'MII' in output:
 			print('Found an issue')
 			break
-		elif 'DistServ' in output:
-			print('Possible watchdog error.  quitting.')
-			break
 		elif 'Boot ROM' in output:
 			print('DUT reset.  quitting.')
 			break
+		elif 'DistServ' in output:
+			print('Possible watchdog error.  Check the logs.')
 		else:
 			print('No issue found')
 		#DUT.clearConfig()
