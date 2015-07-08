@@ -64,7 +64,7 @@ class Device(object):
 			temp = self.read_until_prompt(1)
 		else:
 			#print('It is a list')
-			temp = ''
+			temp = b''
 			for command in commands:
 				self.tn.write(command.encode('ascii') + b'\n')
 				temp = temp + self.read_until_prompt(1)
