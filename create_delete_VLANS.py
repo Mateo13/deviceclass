@@ -46,16 +46,17 @@ class VLANTest(Test):
 	#Check if test passed.
 	def checkCreate(self):
 		self.tn.read()
-		self.tn.write('show vlan\n')
-		temp = self.tn.read_until('#')
-		if b'Total number of VLAN(s) : 12' in temp:
+		temp = self.tn.write('show vlan\n')
+		self.logOutput(temp.decode('utf-8'), False)
+		match = b'Total number of VLAN(s) : ' + str(numVLANS + 2).encode('ascii')
+		if match  in temp:
 			self.testResult = 'PASS'
 	
 	#Check if VLANs were successfully deleted.
 	def checkDelete(self):
 		self.tn.read()
-		self.tn.write('show vlan\n')
-		temp = self.tn.read_until('#')
+		temp = self.tn.write('show vlan\n')
+		self.logOutput(temp.decode('utf-8'), False)
 		if b'Total number of VLAN(s) : 2' not in temp:
 			self.testResult = 'FAIL'
 	
@@ -87,6 +88,7 @@ class VLANTest(Test):
 		self.logOutput("Beginning " + self.name)
 		self.logOutput("===============================================================================")
 		self.tn.login()
+		self.deleteVLANs()
 		for i in range(1,(numIter + 1)):
 			self.logOutput("============================================================")
 			self.logOutput("Beginning iteration " + str(i))
@@ -101,7 +103,7 @@ class VLANTest(Test):
 if __name__ == '__main__':
 	tel = Device('EXOS', '10.52.2.33', 2009)
 	test = VLANTest('Create/Delete VLANs Test', tel)
-	f = open('testLog.txt', 'ab')
+	f = open('vlans_testLog.txt', 'ab')
 	test.setLog(f)
 	test.execute()
 	test.checkResult()
