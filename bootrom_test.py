@@ -29,14 +29,12 @@ class BootROMTest(Test):
 		self.logOutput("===============================================================================")
 		self.logOutput("Reseting device for BootROM testing...")
 		self.tn.reset()
-		self.tn.read_until('enter the bootrom:')
-		self.logOutput("Executing mtest from BootROM...")
+		self.tn.read_until('enter the bootrom:', 120)
 		self.tn.write('     ')
+		self.logOutput("Executing mtest from BootROM...")
 		self.tn.read_until('BootRom >')
 		self.tn.write('mtest\n')
-		self.res = self.tn.read()
 		self.res = self.tn.read_until('BootRom >')
-		self.logOutput(self.res)
 		self.tn.write('boot\n')		
 	
 if __name__ == '__main__':
