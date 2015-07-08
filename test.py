@@ -12,8 +12,9 @@ class Test(object):
 		self.log = file
 
 	#Log output.
-	def logOutput(self, output):
-		print(output)
+	def logOutput(self, output, printCLI=True):
+		if printCLI:
+			print(output)
 		output = output + '\r\n'
 		self.log.write(output.encode('ascii'))
 
