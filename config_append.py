@@ -17,8 +17,8 @@ if __name__ == '__main__':
 	for x in range(500):
 		# Sleep a random amount of time to change the timing slightly each iteration.
 		sleeptime = random.randrange(30)
-		print('*** Starting iteration %d with a %d second wait.***\n\n' % [x,sleeptime])
-		f.write('\n\n*** Starting iteration %d  with a %d second wait.***\n\n' % [x,sleeptime])
+		print('*** Starting iteration %d with a %d second wait.***\n\n' % (x,sleeptime))
+		f.write('\n\n*** Starting iteration %d  with a %d second wait.***\n\n' % (x,sleeptime))
 		
 		DUT.clearConfig()
 		# It takes about 3 minutes to come back online.
