@@ -1,28 +1,29 @@
 
 from device import Device
-
+import time
 
 
 
 
 if __name__ == '__main__':
-	f = open('log.txt', 'w')
+	f = open('output.log', 'w', buffering=0)
 	DUT = Device('EOS', '10.52.2.222', 10022)
 	DUT.write('\n')
-	DUT.login()
-	f.write(DUT.read_until_prompt())
+	time.sleep(3)
+	print(DUT.read_until('Username'))
+	
+	f.write(DUT.login())
 	
 	for x in range(500):
 		print('*** Starting iteration %d ***' % x)
-		f.write('*** Starting iteration %d ***\n\n' % x)
+		f.write('\n\n*** Starting iteration %d ***\n\n' % x)
 		DUT.clearConfig()
 		# It takes about 3 minutes to come back online.
-		time.sleep(3*60)
-		DUT.login()
-		output = DUT.read_until_prompt()
+		output = DUT.read_until('Username:')
+		output = output + DUT.login()
 		f.write(output)
 		# append the backup config.
-		DUT.write(['config slot\\backup2.cfg append','y','y'])
+		DUT.write(['config slot2/backup2.cfg append','y','y'])
 		# This should wait for the append to finish.
 		output = DUT.read_until_prompt()
 		f.write(output)
