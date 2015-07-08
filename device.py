@@ -36,18 +36,24 @@ class Device(object):
 		
 	#Login to the device
 	def login(self):
-		self.write('\n')
+		#self.write('\n')
 		self.write(self.username + '\n')
 		self.write(self.password + '\n')
-		temp = self.read_find('#', 4)
-		if temp == None:
-			print("Error logging into device: Incorrect username or bad password!\n")
-			sys.exit()
 		if self.type == 'EXOS':
+			temp = self.read_find('#', 4)
+			if temp == None:
+				print("Error logging into device: Incorrect username or bad password!\n")
+				sys.exit()
 			self.write('disable clipaging\n')
-		if self.type == 'EOS':
+		else:
+			temp = self.read_find('->', 4)
+			if temp == None:
+				print("Error logging into device: Incorrect username or bad password!\n")
+				print(temp)
+				sys.exit()
 			self.write('set cli completion disable\n')
-		return self.read()
+		temp = temp + self.read()
+		return temp
 			
 	#Write command(s) to the device.
 	def write(self, commands):
