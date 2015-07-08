@@ -12,9 +12,9 @@ dut = Device('EXOS', '10.52.2.33', 2009)
 tests = []
 
 #Add InstallTest to list of tests to execute.
-t = install_test.InstallTest('Install Test', dut, '10.52.4.40', 'firmware/images/summitX-16.1.1.4.xos')
-t.numIter = 2
-tests.append(t)
+#t = install_test.InstallTest('Install Test', dut, '10.52.4.40', 'firmware/images/summitX-16.1.1.4.xos')
+#t.numIter = 2
+#tests.append(t)
 
 #Add VLAN test to list of tests to execute and update num_ports.
 t = create_delete_VLANS.VLANTest('VLAN Test', dut)
