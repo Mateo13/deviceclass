@@ -62,9 +62,9 @@ class VLANTest(Test):
 	#Log result of current iteration of test.
 	def updateIterResult(self, iter):
 		if self.testResult == 'PASS':
-			self.iterResults[iter] = True
+			self.iterResults.append(True)
 		else:
-			self.iterResults[iter] = False
+			self.iterResults.append(False)
 
 	#Return final test result
 	def checkResult(self):
