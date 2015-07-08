@@ -14,7 +14,7 @@ class Test(object):
 	#Log output.
 	def logOutput(self, output):
 		print(output)
-		output = output + '\n'
+		output = output + '\r\n'
 		self.log.write(output.encode('ascii'))
 
 	#Check the result of the test after execution
