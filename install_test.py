@@ -5,6 +5,11 @@ from test import Test
 from device import Device
 import sys
 
+#Global vars
+numIter = 100
+dut_ip = '192.168.1.9/24'
+dut_gw = '192.168.1.1'
+
 #Define test class.
 class InstallTest(Test):
 	#Initialize class.
@@ -40,61 +45,73 @@ class InstallTest(Test):
 		return int(output.decode('utf-8'))
 		
 	#Check if image was installed successfully.
-	def checkResult(self):
+	def checkStatus(self):
 		boot_count = self.getBootCount()
-		if (self.startingBootCount + 1) == boot_count and self.testFailed == False:
+		if (self.bootCount + 1) == boot_count and self.testFailed == False:
 			self.testResult = 'PASS'
 		else: 
 			self.testResult = 'FAIL'
 			self.testFailed = True
-			print("Test Result: FAIL")
-			sys.exit()
-		self.startingBootCount = boot_count
-		print("New boot count: " + str(self.startingBootCount))
+		self.bootCount = boot_count
+		self.logOutput("New boot count: " + str(self.bootCount))
 	
+	#Check test run results.
+	def checkResult(self):
+		self.logOutput("////////////////////////////////////////////////////////////")
+		self.logOutput("Image downloads/reboots completed.")
+		self.logOutput("Total number of reboots: " + str(self.bootCount - self.startingBootCount))
+		self.logOutput("Test Result: " + self.testResult)
+		self.logOutput("////////////////////////////////////////////////////////////")
+
 	#Execute test.
 	def execute(self):
-		print(self)
+		self.logOutput("===============================================================================")
+		self.logOutput("Beginning " + self.name)
+		self.logOutput("===============================================================================")
 		self.tn.login()
-		print("Configuring network access...")
-		self.configNetwork('192.168.1.9/24', '192.168.1.1')
-		print("Network access configured.")
-		print("Getting current partition...")
+		self.logOutput("Configuring network access...")
+		self.configNetwork(dut_ip, dut_gw)
+		self.logOutput("Network access configured.")
+		self.logOutput("Getting current partition...")
 		self.getCurPartition()
-		print("Starting partition is: " + self.partition)
+		self.logOutput("Starting partition is: " + self.partition)
 		self.startingBootCount = self.getBootCount()
-		print("Starting boot count is: " + str(self.startingBootCount))
-		for i in range(1,3):
-			print("=====================================================")
-			print("Beginning iteration " + str(i))
-			print("=====================================================")
-			print("Downloading image...")
+		self.bootCount = self.startingBootCount
+		self.logOutput("Starting boot count is: " + str(self.startingBootCount))
+		for i in range(1,(numIter + 1)):
+			self.logOutput("============================================================")
+			self.logOutput("Beginning iteration " + str(i))
+			self.logOutput("============================================================")
+			self.logOutput("Downloading image...")
 			self.tn.read()
 			self.tn.write('download image ' + self.tftp_ip + ' ' + self.image + ' vr VR-Mgmt')
 			self.tn.write(['y', 'y'])
 			self.tn.read_until_prompt()
-			print("Image downloaded.")
+			self.logOutput("Image downloaded.")
 			if self.partition == 'primary':
-				self.partition == 'secondary'
+				self.partition = 'secondary'
 			elif self.partition == 'secondary':
-				self.partition == 'primary'
+				self.partition = 'primary'
 			else:
-				print('ERROR: Invalid partition!  Exiting...')
-				print('Test Result: FAIL')
+				self.logOutput('ERROR: Invalid partition!  Exiting...')
+				self.logOutput('Test Result: FAIL')
 				return
-			print("Setting boot partition to " + self.partition + "...")
+			self.logOutput("Setting boot partition to " + self.partition + "...")
 			self.tn.write('use image ' + self.partition)
-			print("Rebooting...")
+			self.logOutput("Rebooting...")
 			self.tn.reset()
 			self.tn.read_until('Authentication Service (AAA) on the master node is now available for login.')
-			print("Reboot complete.")
+			self.logOutput("Reboot complete.")
 			self.tn.read()
 			self.tn.login()
-			self.checkResult()
-		print("Test Result: PASS")
+			self.checkStatus()
 
 #Some class testing.
 if __name__ == '__main__':
 	tel = Device('EXOS', '10.52.2.33', 2009)
 	test = InstallTest("InstallTest", tel, '10.52.4.40', 'firmware/images/summitX-16.1.1.4.xos')
+	f = open('testLog.txt', 'ab')
+	test.setLog(f)
 	test.execute()
+	test.checkResult()
+	f.close()
