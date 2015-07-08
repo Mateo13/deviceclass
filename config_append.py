@@ -1,7 +1,7 @@
 
 from device import Device
 import time
-
+import random
 
 
 
@@ -15,15 +15,19 @@ if __name__ == '__main__':
 	f.write(DUT.login())
 	
 	for x in range(500):
-		print('*** Starting iteration %d ***' % x)
-		f.write('\n\n*** Starting iteration %d ***\n\n' % x)
+		# Sleep a random amount of time to change the timing slightly each iteration.
+		sleeptime = random.randrange(30)
+		print('*** Starting iteration %d with a %d second wait.***\n\n' % (x,sleeptime))
+		f.write('\n\n*** Starting iteration %d  with a %d second wait.***\n\n' % (x,sleeptime))
+		
 		DUT.clearConfig()
 		# It takes about 3 minutes to come back online.
 		output = DUT.read_until('Username:')
 		output = output + DUT.login()
 		f.write(output)
+		time.sleep(sleeptime)
 		# append the backup config.
-		DUT.write(['config slot2/backup2.cfg append','y','y'])
+		DUT.write(['config slot2/backup2.cfg append','y'])
 		# This should wait for the append to finish.
 		output = DUT.read_until_prompt()
 		f.write(output)
