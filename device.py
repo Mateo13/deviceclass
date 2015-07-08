@@ -60,21 +60,21 @@ class Device(object):
 		if isinstance(commands, str):
 			#print('It is a string')
 			self.tn.write(commands.encode('ascii') + b'\n')
-			time.sleep(1)
+			temp = self.read_until_prompt()
 		else:
 			#print('It is a list')
 			for command in commands:
 				self.tn.write(command.encode('ascii') + b'\n')
-				time.sleep(1)
-	
+				temp = self.read_until_prompt()
+		return temp
+		
 	#Read output
 	def read(self):
-		time.sleep(1)
+		self.read_until_prompt(1)
 		return self.tn.read_very_eager()
 
 	#Read until given string.
 	def read_until(self, s, timeout=300):
-		time.sleep(1)
 		return self.tn.read_until(s.encode('ascii'), timeout)
 	
 	#Same as read_until except returns null if timeout was reached (timeout was reached if the "read_until" string isn't in the return output).
@@ -87,11 +87,10 @@ class Device(object):
 	
 	#Read until OS prompt.
 	def read_until_prompt(self, timeout=300):
-		time.sleep(1)
 		if self.type == 'EXOS':
-			return self.tn.read_until('#'.encode('ascii'), timeout)
+			return self.read_until('#', timeout)
 		if self.type == 'EOS':
-			return self.tn.read_until('->'.encode('ascii'), timeout)
+			return self.read_until('->', timeout)
 	
 	#Clear running configuration on device.
 	def clearConfig(self):
