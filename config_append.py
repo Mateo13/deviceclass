@@ -27,7 +27,7 @@ if __name__ == '__main__':
 		f.write(output)
 		time.sleep(sleeptime)
 		# append the backup config.
-		DUT.write(['config slot2/backup2.cfg append','y','y'])
+		DUT.write(['config slot2/backup2.cfg append','y'])
 		# This should wait for the append to finish.
 		output = DUT.read_until_prompt()
 		f.write(output)
