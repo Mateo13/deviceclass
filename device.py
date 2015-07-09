@@ -40,6 +40,7 @@ class Device(object):
 		#self.write('\n')
 		self.write(self.username + '\n')
 		self.write(self.password + '\n')
+		self.write('q' + '\n')
 		if self.type == 'EXOS':
 			temp = self.read_find('#', 4)
 			if temp == None:
@@ -57,17 +58,17 @@ class Device(object):
 		return temp
 			
 	#Write command(s) to the device.
-	def write(self, commands):
+	def write(self, commands, timeout=1):
 		if isinstance(commands, str):
 			#print('It is a string')
 			self.tn.write(commands.encode('ascii') + b'\n')
-			temp = self.read_until_prompt(1)
+			temp = self.read_until_prompt(timeout)
 		else:
 			#print('It is a list')
 			temp = b''
 			for command in commands:
 				self.tn.write(command.encode('ascii') + b'\n')
-				temp = temp + self.read_until_prompt(1)
+				temp = temp + self.read_until_prompt(timeout)
 		return temp
 		
 	#Read output
