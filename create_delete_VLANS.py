@@ -39,6 +39,7 @@ class VLANTest(Test):
 	def deleteVLANs(self):
 		self.tn.read()
 		self.logOutput("Deleting all non-default VLANs...")
+		self.tn.read_until('#')
 		self.tn.write('delete VLAN 2-4094\n')
 		self.tn.read_until('#')
 		self.logOutput("VLANs deleted.")
@@ -46,7 +47,8 @@ class VLANTest(Test):
 	#Check if test passed.
 	def checkCreate(self):
 		self.tn.read()
-		temp = self.tn.write('show vlan\n')
+		temp = self.tn.write('show vlan | include "Total"\n', 500)
+		print(temp.decode('utf-8'))
 		self.logOutput(temp.decode('utf-8'), False)
 		match = b'Total number of VLAN(s) : ' + str(numVLANS + 2).encode('ascii')
 		if match  in temp:
@@ -55,7 +57,7 @@ class VLANTest(Test):
 	#Check if VLANs were successfully deleted.
 	def checkDelete(self):
 		self.tn.read()
-		temp = self.tn.write('show vlan\n')
+		temp = self.tn.write('show vlan\n', 500)
 		self.logOutput(temp.decode('utf-8'), False)
 		if b'Total number of VLAN(s) : 2' not in temp:
 			self.testResult = 'FAIL'
