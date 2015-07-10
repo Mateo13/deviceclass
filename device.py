@@ -37,7 +37,6 @@ class Device(object):
 		self.write(self.username + '\n')
 		self.write(self.password + '\n')
 		if self.type == 'EXOS':
-			self.write('q' + '\n')
 			temp = self.read_find('#', 4)
 			if temp == None:
 				print("Error logging into device: Incorrect username or bad password!\n")
