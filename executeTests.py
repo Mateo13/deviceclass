@@ -50,7 +50,7 @@ tests = []
 f = open(TEST_LOG_FILENAME, 'wb')
 
 #Add BootROM test to list of tests to execute.
-t = bootrom_test.BootROMTest('BootROM Test', dut)
+t = bootrom_test.BootROMTest('BootROM Test', dut, f)
 tests.append(t)
 
 #Add Rescue Image Test to list of tests to execute.
