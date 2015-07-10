@@ -1,23 +1,23 @@
-#This test will run 100 installs and verify that each one is successful.
+'''This test will run 100 installs and verify that each one is successful.'''
 
 #Imports.
 from test import Test
 from device import Device
 import sys
 
-#Global vars
-numIter = 100
-dut_ip = '192.168.1.9/24'
-dut_gw = '192.168.1.1'
 
 #Define test class.
 class InstallTest(Test):
 	#Initialize class.
-	def __init__(self, name, telnet_device, tftp_server_ip, test_image_directory):
-		super().__init__(name)
+	def __init__(self, name, telnet_device, tftp_server_ip, test_image_directory, f, num_iter=100, 
+		dut_ip='192.168.1.9/24', dut_gw='192.168.1.1'):
+		super().__init__(name, f)
 		self.tn = telnet_device
 		self.tftp_ip = tftp_server_ip
 		self.image = test_image_directory
+		self.num_iter = num_iter
+		self.dut_ip = dut_ip
+		self.dut_gw = dut_gw
 		self.testResult = 'FAIL'
 		self.testFailed = False
 	
@@ -57,20 +57,19 @@ class InstallTest(Test):
 	
 	#Check test run results.
 	def checkResult(self):
-		self.logOutput("////////////////////////////////////////////////////////////")
-		self.logOutput("Image downloads/reboots completed.")
-		self.logOutput("Total number of reboots: " + str(self.bootCount - self.startingBootCount))
-		self.logOutput("Test Result: " + self.testResult)
-		self.logOutput("////////////////////////////////////////////////////////////")
+		if self.testResult == 'PASS':
+			self.finalResultPass = True
+		else:
+			self.finalResultPass = False
+		self.printResultBanner("Image downloads/reboots completed.\nTotal number of reboots: " 
+			+ str(self.bootCount - self.startingBootCount), self.finalResultPass)
 
 	#Execute test.
 	def execute(self):
-		self.logOutput("===============================================================================")
-		self.logOutput("Beginning " + self.name)
-		self.logOutput("===============================================================================")
+		self.printBeginBanner()
 		self.tn.login()
 		self.logOutput("Configuring network access...")
-		self.configNetwork(dut_ip, dut_gw)
+		self.configNetwork(self.dut_ip, self.dut_gw)
 		self.logOutput("Network access configured.")
 		self.logOutput("Getting current partition...")
 		self.getCurPartition()
@@ -78,10 +77,8 @@ class InstallTest(Test):
 		self.startingBootCount = self.getBootCount()
 		self.bootCount = self.startingBootCount
 		self.logOutput("Starting boot count is: " + str(self.startingBootCount))
-		for i in range(1,(numIter + 1)):
-			self.logOutput("============================================================")
-			self.logOutput("Beginning iteration " + str(i))
-			self.logOutput("============================================================")
+		for i in range(1,(self.num_iter + 1)):
+			self.printBeginIterBanner(i)
 			self.logOutput("Downloading image...")
 			self.tn.read()
 			self.tn.write('download image ' + self.tftp_ip + ' ' + self.image + ' vr VR-Mgmt')
@@ -109,9 +106,8 @@ class InstallTest(Test):
 #Some class testing.
 if __name__ == '__main__':
 	tel = Device('EXOS', '10.52.2.33', 2009)
-	test = InstallTest("InstallTest", tel, '10.52.4.40', 'firmware/images/summitX-16.1.1.4.xos')
-	f = open('testLog.txt', 'ab')
-	test.setLog(f)
+	f = open('installTestLog.txt', 'ab')
+	test = InstallTest("InstallTest", tel, '10.52.4.40', 'firmware/images/summitX-16.1.1.4.xos', f, 1)
 	test.execute()
 	test.checkResult()
 	f.close()
