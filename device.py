@@ -21,10 +21,7 @@ class Device(object):
 		self.type = type
 		self.tn = Telnet(address, port, 20)
 		self.write('\n')
-		if type == 'EOS':
-			self.read_until('Username:', 10)
-		else:
-			self.read_until('login:', 10)
+		self.read_until_prompt(10)
 		print("Connected to %s:%d" % (address, port))
 	
 	#Reset the device.
@@ -37,11 +34,10 @@ class Device(object):
 		
 	#Login to the device
 	def login(self):
-		#self.write('\n')
 		self.write(self.username + '\n')
 		self.write(self.password + '\n')
-		self.write('q' + '\n')
 		if self.type == 'EXOS':
+			self.write('q' + '\n')
 			temp = self.read_find('#', 4)
 			if temp == None:
 				print("Error logging into device: Incorrect username or bad password!\n")
@@ -51,7 +47,6 @@ class Device(object):
 			temp = self.read_find('->', 4)
 			if temp == None:
 				print("Error logging into device: Incorrect username or bad password!\n")
-				print(temp)
 				sys.exit()
 			self.write('set cli completion disable\n')
 		temp = temp + self.read()
@@ -94,6 +89,7 @@ class Device(object):
 		(index, match, output) = self.tn.expect([reYesNo, b' # ', b'->', b'Username:', b'login:', b'[pP]assword'], timeout)
 		#(index, match, output) = self.tn.expect([b' # ',b'->',reYesNo], timeout)
 		return output
+
 	#Clear running configuration on device.
 	def clearConfig(self):
 		if self.type == 'EOS':
