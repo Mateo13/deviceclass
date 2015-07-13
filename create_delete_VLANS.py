@@ -109,8 +109,8 @@ class VLANTest(Test):
 #Class testing.			
 if __name__ == '__main__':
 	tel = Device('EXOS', '10.52.2.33', 2009)
-	f = open('vlans_testLog.txt', 'ab')
-	test = VLANTest('Create/Delete VLANs Test', tel, f, 48, 2, 10)
+	f = open('vlans_testLog.txt', 'wb')
+	test = VLANTest('Create/Delete VLANs Test', tel, f)
 	test.execute()
 	test.checkResult()
 	f.close()
