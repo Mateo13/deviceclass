@@ -8,7 +8,7 @@ from device import Device
 #Define test class.
 class RescueTest(Test):
 	#Initialize class.
-	def __init__(self, name, telnet_device, tftp_server_ip, test_image_directory, f, num_iter = 2, 
+	def __init__(self, name, telnet_device, f, tftp_server_ip, test_image_directory, num_iter = 2, 
 		dut_ip = '192.168.1.9', dut_gw = '192.168.1.1', dut_nm = '255.255.255.0'):
 		super().__init__(name, f)
 		self.tn = telnet_device
@@ -57,6 +57,6 @@ class RescueTest(Test):
 if __name__ == '__main__':
 	t = Device('EXOS', '10.52.2.33', 2009)
 	f = open('rescueTestLog.txt', 'ab')
-	r = RescueTest("Rescue Test", t, '10.52.4.40', 'firmware/images/summitX-16.1.1.4.xos', f, 1)
+	r = RescueTest("Rescue Test", t, f, '10.52.4.40', 'firmware/images/summitX-16.1.1.4.xos', 1)
 	r.execute()
 	r.checkResult()
