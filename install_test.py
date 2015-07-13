@@ -9,7 +9,7 @@ import sys
 #Define test class.
 class InstallTest(Test):
 	#Initialize class.
-	def __init__(self, name, telnet_device, tftp_server_ip, test_image_directory, f, num_iter=100, 
+	def __init__(self, name, telnet_device, f, tftp_server_ip, test_image_directory, num_iter=100, 
 		dut_ip='192.168.1.9/24', dut_gw='192.168.1.1'):
 		super().__init__(name, f)
 		self.tn = telnet_device
@@ -107,7 +107,7 @@ class InstallTest(Test):
 if __name__ == '__main__':
 	tel = Device('EXOS', '10.52.2.33', 2009)
 	f = open('installTestLog.txt', 'ab')
-	test = InstallTest("InstallTest", tel, '10.52.4.40', 'firmware/images/summitX-16.1.1.4.xos', f, 1)
+	test = InstallTest("InstallTest", tel, f, '10.52.4.40', 'firmware/images/summitX-16.1.1.4.xos', 1)
 	test.execute()
 	test.checkResult()
 	f.close()
