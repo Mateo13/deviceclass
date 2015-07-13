@@ -47,14 +47,14 @@ dut = Device(DUT_DEVICE_TYPE, DUT_TELNET_IP, DUT_TELNET_PORT)
 tests = []
 
 #Create log file
-f = open(TEST_LOG_FILENAME, 'wb')
+f = open(TEST_LOG_FILENAME, 'ab')
 
 #Add BootROM test to list of tests to execute.
 t = bootrom_test.BootROMTest('BootROM Test', dut, f)
 tests.append(t)
 
 #Add Rescue Image Test to list of tests to execute.
-t = rescue_test.RescueTest('Rescue Image Test', dut, RT_TFTP_SERVER_IP, 
+t = rescue_test.RescueTest('Rescue Image Test', dut, f, RT_TFTP_SERVER_IP, 
 	RT_IMAGE_LOCATION + RT_IMAGE_NAME, RT_NUMBER_OF_ITERATIONS, RT_DUT_IP_ADDRESS, 
 	RT_DUT_GW_ADDRESS, RT_DUT_NETMASK)
 tests.append(t)
@@ -65,8 +65,8 @@ t = create_delete_VLANS.VLANTest('VLAN Test', dut, f, VT_NUM_PORTS_PER_VLAN, VT_
 tests.append(t)
 
 #Add InstallTest to list of tests to execute.
-t = install_test.InstallTest('Install Test', dut, IT_TFTP_SERVER_IP, 
-	IT_IMAGE_LOCATION + IT_IMAGE_NAME, f, IT_NUM_ITERATIONS, IT_DUT_IP_ADDRESS, IT_DUT_GW_ADDRESS)
+t = install_test.InstallTest('Install Test', dut, f, IT_TFTP_SERVER_IP, 
+	IT_IMAGE_LOCATION + IT_IMAGE_NAME, IT_NUM_ITERATIONS, IT_DUT_IP_ADDRESS, IT_DUT_GW_ADDRESS)
 tests.append(t)
 
 #Run all tests.
