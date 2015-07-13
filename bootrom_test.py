@@ -31,7 +31,8 @@ class BootROMTest(Test):
 		self.logOutput("Executing mtest from BootROM...")
 		self.tn.read_until('BootRom >', 2)
 		self.res = self.tn.write('mtest\n') + self.tn.read_until('BootRom >', 120)
-		self.tn.write('boot\n', 200)		
+		self.tn.write('boot\n')
+		self.tn.read_until('login:')		
 	
 if __name__ == '__main__':
 	tel = Device('EXOS', '10.52.2.33', 2009)
