@@ -56,6 +56,10 @@ class Device():
 		self.write(self.password )
 		output = output + self.read_until_prompt()
 		return output
+	
+	# If this is done over telnet, you're gonna have a bad time.
+	def clearconfig(self):
+		self.write(self.clearconfcmd)
 		
 	# Close the telnet connection.
 	def closeconnection(self):
@@ -67,6 +71,7 @@ class EOSDevice(Device):
 	# attributes specific to EOS devices.
 	prompt = b'->'
 	reset_cmd = ['reset sys', 'y']
+	clearconfcmd =['clear conf all', 'y']
 
 	def login(self):
 		super().login()
@@ -76,6 +81,7 @@ class EXOSDevice(Device):
 	# attributes specific to ExOS devices.
 	prompt = b' # '
 	reset_cmd = ['reboot', 'y']
+	clearconfcmd = ['unconfig switch all', 'y']
 
 	def login(self):
 		super().login()
