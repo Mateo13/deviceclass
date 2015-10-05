@@ -34,24 +34,28 @@ class Device():
 	
 	# WRITE functions
 	# Accepts either a string or list of strings.  Returns all output it gets while waiting for prompts.
-	def write(self, commands, timeout=1):
+	def write(self, commands):
 		if isinstance(commands, str):
 			self.tn.write(commands.encode('ascii') + b'\n')
-			temp = self.read_until_prompt(timeout)
+			time.sleep(1)
 		else:
-			temp = b''
 			for command in commands:
 				self.tn.write(command.encode('ascii') + b'\n')
-				temp = temp + self.read_until_prompt(timeout)
-		return temp
+				time.sleep(1)
+				#temp = temp + self.read_until_prompt(timeout)
+		
 	
 	# Usability commands - Better living thru laziness.
 	def reset(self):
 		return self.write(self.reset_cmd)
 
 	def login(self):
-		self.write(self.username + '\n')
-		self.write(self.password + '\n')
+		self.write('\n')
+		output = self.read_until_prompt()
+		self.write(self.username )
+		self.write(self.password )
+		output = output + self.read_until_prompt()
+		return output
 		
 	# Close the telnet connection.
 	def closeconnection(self):
@@ -65,7 +69,7 @@ class EOSDevice(Device):
 	reset_cmd = ['reset sys', 'y']
 
 	def login(self):
-		super(self.__class__, self).login()
+		super().login()
 		self.write('set cli completion disable')
 
 class EXOSDevice(Device):
@@ -74,7 +78,7 @@ class EXOSDevice(Device):
 	reset_cmd = ['reboot', 'y']
 
 	def login(self):
-		super(self.__class__, self).login()
+		super().login()
 		self.write('disable clipaging')
 
 
