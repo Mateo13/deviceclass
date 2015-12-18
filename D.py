@@ -74,8 +74,10 @@ class EOSDevice(Device):
 	clearconfcmd =['clear conf all', 'y']
 
 	def login(self):
-		super().login()
+		output = super().login()
 		self.write('set cli completion disable')
+		output = output + self.read_until_prompt()
+		return output
 
 class EXOSDevice(Device):
 	# attributes specific to ExOS devices.
@@ -84,8 +86,10 @@ class EXOSDevice(Device):
 	clearconfcmd = ['unconfig switch all', 'y']
 
 	def login(self):
-		super().login()
+		output = super().login()
 		self.write('disable clipaging')
+		output = output + self.read_until_prompt()
+		return output
 
 # stackable device
 class stackable(Device):
