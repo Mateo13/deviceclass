@@ -87,4 +87,9 @@ class EXOSDevice(Device):
 		super().login()
 		self.write('disable clipaging')
 
+# stackable device
+class stackable(Device):
+	prompt = b'->'
+	reset_cmd = ['reset', 'y']
+
 
