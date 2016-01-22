@@ -50,8 +50,9 @@ class Device():
 		return self.write(self.reset_cmd)
 
 	def login(self):
-		self.write('\n')
+#		self.write('\n')
 		output = self.read_until_prompt()
+		time.sleep(1)
 		self.write(self.username )
 		self.write(self.password )
 		output = output + self.read_until_prompt()
@@ -90,6 +91,34 @@ class EXOSDevice(Device):
 		self.write('disable clipaging')
 		output = output + self.read_until_prompt()
 		return output
+	def showportconfig(self, portstring):
+		''' Return a list of dictionaries containing the port configs of the ports passed in.'''
+		self.read() # get rid of any extra stuff on the buffer.
+		self.write('show port %s config no' % portstring)
+		output = self.read_until_prompt()
+		output = output.decode()
+		delim = '================================================================================\r\n'
+		output = output.split(delim)
+		print(output[1])
+		output = output[1].strip() # This gets just the port info without headers/footers.
+		portconfig = []
+		for line in output.split('\n'):
+			portdict = {}
+			portdict['portnum'] = line[:9].strip()
+			portdict['vr'] = line[9:21].strip()
+			portdict['portstate'] = line[21:23].strip()
+			portdict['linkstate'] = line[28:31].strip()
+			portdict['aneg'] = line[32:35].strip()
+			portdict['cfgspd'] = line[36:42].strip()
+			portdict['actspd'] = line[42:48].strip()
+			portdict['cfgdup'] = line[48:53].strip()
+			portdict['actdup'] = line[53:58].strip()
+			portdict['flowctrl'] = line[59:66].strip()
+			portdict['ldmstr'] = line[66:71].strip()
+			portdict['media'] = line[70:].strip()
+			portconfig.append(portdict)
+		return portconfig
+
 
 # stackable device
 class stackable(Device):

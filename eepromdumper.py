@@ -80,10 +80,11 @@ while(nochanges):
 	for good,test in zip(goodeeproms,eepromstotest):
 		for goodline,testline in zip(good,test):
 			if goodline.strip() != testline.strip():
-				print('Found a difference!')
+				print('*** Found a difference! ***')
+				print('*** ' + good[0])
 				print(goodline)
 				print(testline)
-				print(good[0])
+				
 				nochanges = False
 	
 	if nochanges:
