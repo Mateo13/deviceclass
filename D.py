@@ -1,12 +1,15 @@
 import time
 import sys
 import re
+import logging
 
 from telnetlib import Telnet
 
 # Device base class.
 class Device():
 	def __init__(self, address, port, login='admin', passwd=''):
+		self.log = logging.getLogger(__name__)
+		self.log.info('%s logger created' % __name__)
 		self.username = login
 		self.password = passwd
 		self.tn = Telnet(address, port, 20)
@@ -51,7 +54,7 @@ class Device():
 
 	def login(self):
 #		self.write('\n')
-		output = self.read_until_prompt()
+		output = self.read_until_prompt(2)
 		time.sleep(1)
 		self.write(self.username )
 		self.write(self.password )
@@ -88,18 +91,22 @@ class EXOSDevice(Device):
 
 	def login(self):
 		output = super().login()
+		if self.prompt in output:
+			self.log.info('Probably got logged in successfully.')
+		else:
+			self.log.error('Probably didnt get logged in successfully.')
 		self.write('disable clipaging')
 		output = output + self.read_until_prompt()
 		return output
 	def showportconfig(self, portstring):
 		''' Return a list of dictionaries containing the port configs of the ports passed in.'''
-		self.read() # get rid of any extra stuff on the buffer.
+		self.log.debug(self.read()) # get rid of any extra stuff on the buffer.
 		self.write('show port %s config no' % portstring)
 		output = self.read_until_prompt()
 		output = output.decode()
+		self.log.debug(output)
 		delim = '================================================================================\r\n'
 		output = output.split(delim)
-		print(output[1])
 		output = output[1].strip() # This gets just the port info without headers/footers.
 		portconfig = []
 		for line in output.split('\n'):
