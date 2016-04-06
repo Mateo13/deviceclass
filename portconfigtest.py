@@ -16,14 +16,20 @@ ch.setFormatter(fmt)
 log.addHandler(fh)
 log.addHandler(ch)
 
+log.info('**** Starting script! ****')
 
 DUT = D.EXOSDevice('10.52.2.222', 10018)
 time.sleep(2)
 
+counter = 0
 founderror = False
 while(founderror == False):
-	output = DUT.login()
-	log.debug(output)
+	counter = counter + 1
+	log.info('**** Iteration %d ****' % counter)
+	if DUT.login() is False:
+		# login failed for some reason...we should try again in a min. 
+		sleep(30)
+		DUT.login()
 	log.info('Logged in.')
 	time.sleep(4)
 	x = DUT.showportconfig('1-18')
@@ -37,6 +43,9 @@ while(founderror == False):
 		if 'R' in port['linkstate']:
 			# link is down and it should be up.
 			log.error('%s is down.' % port['portnum'])
+			founderror = True
+		if 'NONE' in port['media']:
+			log.error('Media not detected in port %s' % port['portnum'])
 			founderror = True
 	if founderror is False:
 		log.info('Nothing found.  Rebooting.')

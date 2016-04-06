@@ -30,9 +30,16 @@ class Device():
 		else:
 			return None
 	# Read until ANY prompt is found.
-	def read_until_prompt(self, timeout=300):
-		reYesNo = b'\([yY]/[nN](/q)*\)'
-		(index, match, output) = self.tn.expect([reYesNo, self.prompt, b'Username:', b'login:', b'[pP]assword'], timeout)
+	def read_until_prompt(self, timeout=300, prompt=''):
+		if not prompt:
+			# If no prompt is passed in, use the defaults.
+			reYesNo = b'\([yY]/[nN](/q)*\)'
+			prompt = [reYesNo, self.prompt, b'Username:', b'login:', b'[pP]assword']
+		else:
+			# need prompt to be a list in order to pass to expect.
+			if not isinstance(prompt, list):
+				prompt = [prompt]
+		(index, match, output) = self.tn.expect(prompt, timeout)
 		return output
 	
 	# WRITE functions
@@ -54,11 +61,12 @@ class Device():
 
 	def login(self):
 #		self.write('\n')
-		output = self.read_until_prompt(2)
+		output = self.read_until('Username', 5)
 		time.sleep(1)
 		self.write(self.username )
+		output = output + self.read_until_prompt(2)
 		self.write(self.password )
-		output = output + self.read_until_prompt()
+		output = output + self.read_until_prompt(2, prompt=self.prompt)
 		return output
 	
 	# If this is done over telnet, you're gonna have a bad time.
@@ -78,10 +86,17 @@ class EOSDevice(Device):
 	clearconfcmd =['clear conf all', 'y']
 
 	def login(self):
+		retval = False
 		output = super().login()
+		if self.prompt in output:
+			self.log.info('Probably got logged in successfully.')
+			retval = True
+		else:
+			self.log.error('Probably didnt log in successfully.')
 		self.write('set cli completion disable')
 		output = output + self.read_until_prompt()
-		return output
+		self.log.debug(output)
+		return retval
 
 class EXOSDevice(Device):
 	# attributes specific to ExOS devices.
@@ -90,14 +105,17 @@ class EXOSDevice(Device):
 	clearconfcmd = ['unconfig switch all', 'y']
 
 	def login(self):
+		retval = False
 		output = super().login()
 		if self.prompt in output:
 			self.log.info('Probably got logged in successfully.')
+			retval = True
 		else:
-			self.log.error('Probably didnt get logged in successfully.')
+			self.log.error('Probably didnt log in successfully.')
 		self.write('disable clipaging')
 		output = output + self.read_until_prompt()
-		return output
+		self.log.debug(output)
+		return retval
 	def showportconfig(self, portstring):
 		''' Return a list of dictionaries containing the port configs of the ports passed in.'''
 		self.log.debug(self.read()) # get rid of any extra stuff on the buffer.
